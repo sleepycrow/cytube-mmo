@@ -1,0 +1,19 @@
+{
+  "name": "cymmo",
+  "version": "1.0.0",
+  "description": "an experience",
+  "main": "index.js",
+  "scripts": {
+    "build-dev": "node rollup_dev.js",
+    "build-prod": "rollup -c rollup_prod.js"
+  },
+  "author": "sleepycrow",
+  "license": "ISC",
+  "devDependencies": {
+    "express": "^4.16.4",
+    "rollup": "^0.64.1",
+    "rollup-plugin-babel-minify": "^5.0.0",
+    "rollup-plugin-serve": "^0.4.2",
+    "socket.io": "^2.2.0"
+  }
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="js/game.js"></script>
+
+        <title>CyMMO Testing Environment</title>
+    </head>
+    <body>
+        <canvas width="480" height="320" id="game-canvas">
+            2005 just called. They said they want their outdated browser back.<br>
+            What I'm saying is your browser doesn't support HTML5.
+        </canvas>
+        <br>
+        <input type="text" id="chatbox" style="width: 480px; box-sizing: border-box;" placeholder="chatfuck" />
+        
+        <script>
+            var username = window.location.hash || window.prompt("ejj miszczu podaj jusernejm");
+
+            if(username != null && username.length > 0){
+                username = username.replace(/#/gi, "");
+                window.location.hash = username;
+
+                var socket = io();
+                socket.emit("login", username);
+                var core = game("game-canvas", socket, username);
+
+                document.getElementById('chatbox').onkeydown = function(e){
+                    if(e.key == "Enter"){
+                        socket.emit("chatMsg", {
+                            msg: e.srcElement.value,
+                            meta: {}
+                        });
+                        e.srcElement.value = "";
+                        e.srcElement.blur();
+                    }
+                };
+            }
+        </script>
+    </body>
+</html>
