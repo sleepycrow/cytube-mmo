@@ -20,12 +20,13 @@ export default class RoomState extends State {
         return new Promise((resolve, reject) => {
             console.log("entering roomstate...");
 
-            core.assets.loadImages({
-                tileset: this.roomConf.tileset
-            }).then(() => {
+            core.assets.loadImages(this.roomConf.assets)
+            .then(() => {
                 core.camera.resetPos();
 
-                this.tilemap = new Tilemap(48, 48, this.roomConf.tileSize, core.assets.loaded.tileset);
+                let mapH = this.roomConf.tilemap.map.length;
+                let mapW = this.roomConf.tilemap.map[0].length;
+                this.tilemap = new Tilemap(mapW, mapH, this.roomConf.tileSize, core.assets.loaded[this.roomConf.tileset]);
                 this.tilemap.loadMap(this.roomConf.tilemap);
 
                 this.player = new LocalPlayerEntity(128, 128);
@@ -62,23 +63,16 @@ export default class RoomState extends State {
             core.stateManager.switch('menu', [this.username]);
     }
 
-    _drawGrid(ctx, width, height, camX, camY, tileSize){
-        //draw background
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(0, 0, width, height);
+    _drawBackground(core){
+        core.ctx.fillStyle = (this.roomConf.bgColor ? this.roomConf.bgColor : '#000000');
+        core.ctx.fillRect(0, 0, core.width, core.height);
 
-        ctx.fillStyle = "#000000";
-        for(var x = tileSize; x < (width + tileSize); x += tileSize){
-            ctx.fillRect(x - (camX % tileSize), 0, 1, height);
-        }
-
-        for(var y = tileSize; y < (height + tileSize); y += tileSize){
-            ctx.fillRect(0, y - (camY % tileSize), width, 1);
-        }
+        if(this.roomConf.bgImage)
+            core.ctx.drawImage(core.assets.loaded[this.roomConf.bgImage], 0, 0);
     }
 
     draw(core){
-        this._drawGrid(core.ctx, core.width, core.height, core.camera.x, core.camera.y, 64);
+        this._drawBackground(core);
 
         this.tilemap.drawArea(core, core.camera.x, core.camera.y, core.camera.width, core.camera.height);
 
