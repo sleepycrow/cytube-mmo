@@ -2,6 +2,15 @@ export default class NetworkManager {
 
     constructor(){
         this.onPacket = console.log;
+        this.channel = null;
+    }
+
+    setChannel(channelId){
+        this.channel = channelId;
+    }
+
+    unsetChannel(){
+        this.channel = null;
     }
 
     setSocket(socket){
@@ -25,6 +34,10 @@ export default class NetworkManager {
 
     send(data){
         if(!this.socket) throw "No websocket client has been set!";
+        if(typeof data !== "object") throw "Can only send objects!";
+
+        if(this.channel !== null)
+            data.chan = this.channel;
 
         this.socket.emit("chatMsg", {
             msg: JSON.stringify(data),
