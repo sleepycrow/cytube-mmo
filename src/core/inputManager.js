@@ -1,10 +1,15 @@
 export default class InputManager {
 
-    constructor(){
+    constructor(core){
         this.keys = {};
         this.keyAge = {};
+        this.core = core;
 
         window.addEventListener("keydown", (e) => {
+            if(document.activeElement !== core.outputCanvas) return false;
+
+            e.preventDefault();
+
             let key = e.key.toUpperCase();
             if(key === ' ') key = 'SPACE';
 
@@ -15,6 +20,10 @@ export default class InputManager {
         });
 
         window.addEventListener("keyup", (e) => {
+            if(document.activeElement !== core.outputCanvas) return false;
+
+            e.preventDefault();
+
             let key = e.key.toUpperCase();
             if(key === ' ') key = 'SPACE';
 

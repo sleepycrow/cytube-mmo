@@ -9,6 +9,7 @@ export default class Game {
     constructor(canvasId, scale){
         this.outputCanvas = document.getElementById(canvasId);
         if(this.outputCanvas == null) throw("canvas could not be found!");
+        this.outputCanvas.setAttribute('tabindex', 0); // make canvas focusable
 
         this.fps = 0;
         this.scale = scale;
@@ -31,7 +32,7 @@ export default class Game {
 
         //start subsystems
         this.stateManager = new StateManager(this);
-        this.input = new InputManager();
+        this.input = new InputManager(this);
         this.camera = new Camera(this, 0, 0);
         this.assets = new AssetManager();
         this.net = new NetworkManager();
