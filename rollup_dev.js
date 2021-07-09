@@ -1,11 +1,15 @@
 const rollup = require('rollup');
+const { terser } = require('rollup-plugin-terser');
 const express = require('express');
 const http = require('http');
 const socketio = require('socket.io');
 
+const port = 10001;
+
 // Options for Rollup.js
 const inputOpts = {
-    input: "./src/main.js"
+    input: "./src/main.js",
+    plugins: [terser()]
 };
 const outputOpts = {
     name: "game",
@@ -39,8 +43,8 @@ io.on("connect", function(socket){
     });
 });
 
-httpServer.listen(80, function(){
-    console.log("Both servers now listening on port :80");
+httpServer.listen(port, function(){
+    console.log("Both servers now listening on port :" + port);
 });
 
 // Then finally build the js bundle
