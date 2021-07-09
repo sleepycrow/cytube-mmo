@@ -21,12 +21,12 @@ export default class StateManager {
     }
 
     // Push a new state to the stack
-    push(newState){
+    push(state){
         this.allowUpdate = false;
-        this.stack.push(newState);
+        this.stack.push(state);
 
-        if(this.getState().init){
-            this.getState().init(this.core)
+        if(state.init){
+            state.init(this.core)
             .then(() => {
                 this.allowUpdate = true;
             });
@@ -37,12 +37,23 @@ export default class StateManager {
 
     // Remove the topmost scene from the stack and go back to the previous one.
     pop(){
-        this.stack.pop();
+        this.allowUpdate = false;
+        var state = this.stack.pop();
+        if(state.exit){
+            state.exit(this.core)
+            .then(() => {
+                this.allowUpdate = true;
+            });
+        }else{
+            this.allowUpdate = true;
+        }
     }
 
     // Drop the entire stack
     drop(){
-        this.stack = [];
+        while(this.stack.length > 0){
+            this.pop();
+        }
     }
 
     // Internal function. Get current state (if any) and run it's 'update' function (if permitted).
@@ -51,7 +62,7 @@ export default class StateManager {
             if(this.getState().update) this.getState().update(dt, this.core);
         }
     }
-    
+
     // Internal function. Get current state (if any) and run it's 'draw' function (if permitted).
     runDraw(){
         if(this.allowUpdate){
