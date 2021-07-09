@@ -7,15 +7,27 @@ import NetworkManager from "./networkManager";
 export default class Game {
 
     constructor(canvasId, scale){
-        this.canvas = document.getElementById(canvasId);
-        if(this.canvas == null) throw("canvas could not be found!");
+        this.outputCanvas = document.getElementById(canvasId);
+        if(this.outputCanvas == null) throw("canvas could not be found!");
 
         this.fps = 0;
-        this.width = this.canvas.width / scale;
-        this.height = this.canvas.height / scale;
         this.scale = scale;
+        this.width = this.outputCanvas.width / scale;
+        this.height = this.outputCanvas.height / scale;
+
+        // create a new canvas. on this one, everything will be drawn at scale 1
+        // afterwards, everything from this canvas will be redrawn on the new
+        // canvas at the proper scale. this is to prevent the fuckery that comes
+        // with drawing tilesets with drawImage with a scale.
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
         this.ctx = this.canvas.getContext("2d");
-        this.ctx.scale(scale, scale);
+        this.ctx.imageSmoothingEnabled = false;
+
+        this.outCtx = this.outputCanvas.getContext("2d");
+        this.outCtx.scale(scale, scale);
+        this.outCtx.imageSmoothingEnabled = false;
 
         //start subsystems
         this.stateManager = new StateManager(this);
@@ -43,6 +55,9 @@ export default class Game {
 
             //draw the scene
             this.stateManager.runDraw();
+
+            //copy scene to output canvas
+            this.outCtx.drawImage(this.canvas, 0, 0);
 
             //request another frame
             this.frameRequestId = window.requestAnimationFrame(loop);
