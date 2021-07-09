@@ -4,6 +4,14 @@ export default class StateManager {
         this.core = core;
         this.allowUpdate = false;
         this.stack = [];
+        this.states = {};
+    }
+
+    registerState(name, state){
+        if(this.states[name]) throw 'A state by the name of ' + name + ' already exists!';
+        if(typeof state !== 'function') throw 'State ' + name + ' is not a class!';
+
+        this.states[name] = state;
     }
 
     // Get current state (or an empty object, if no states are currently in the stack)
@@ -15,44 +23,58 @@ export default class StateManager {
     }
 
     // Drop the entire stack and set a new state
-    switch(newState){
-        this.drop();
-        this.push(newState);
+    async switch(newState, params){
+        await this.drop()
+        await this.push(newState, params);
     }
 
     // Push a new state to the stack
-    push(state){
-        this.allowUpdate = false;
-        this.stack.push(state);
+    push(newState, params){
+        if(!this.states[newState]) throw 'No state by the name of ' + name + '!';
 
-        if(state.init){
-            state.init(this.core)
-            .then(() => {
+        return new Promise((resolve, reject) => {
+            this.allowUpdate = false;
+
+            var state = new this.states[newState](...params);
+            this.stack.push(state);
+
+            if(state.init){
+                state.init(this.core)
+                .then(() => {
+                    this.allowUpdate = true;
+                    resolve();
+                });
+            }else{
                 this.allowUpdate = true;
-            });
-        }else{
-            this.allowUpdate = true;
-        }
+                resolve();
+            }
+        });
     }
 
     // Remove the topmost scene from the stack and go back to the previous one.
     pop(){
-        this.allowUpdate = false;
-        var state = this.stack.pop();
-        if(state.exit){
-            state.exit(this.core)
-            .then(() => {
+        return new Promise((resolve, reject) => {
+            this.allowUpdate = false;
+
+            var state = this.stack.pop();
+
+            if(state.exit){
+                state.exit(this.core)
+                .then(() => {
+                    this.allowUpdate = true;
+                    resolve();
+                });
+            }else{
                 this.allowUpdate = true;
-            });
-        }else{
-            this.allowUpdate = true;
-        }
+                resolve();
+            }
+        });
     }
 
     // Drop the entire stack
-    drop(){
+    async drop(){
         while(this.stack.length > 0){
-            this.pop();
+            await this.pop();
         }
     }
 
