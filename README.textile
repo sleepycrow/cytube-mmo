@@ -1,4 +1,6 @@
-h1. CyTube MMO
+h1. CyTube MMO (v1)
+
+*THIS IS AN OLD, OUTDATED VERSION!!*
 
 A simple proof-of-concept multiplayer game that uses the CyTube chatroom to communicate between players.
 Based on the code of "offl1n3":https://github.com/sleepycrow/offl1n3.
