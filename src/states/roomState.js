@@ -110,29 +110,35 @@ export default class RoomState extends State {
     }
 
     handlePosUpdate(data){
-        if(data.username != this.username){
-            if(this.players[data.username]){
-                this.players[data.username].setPos(data.x, data.y);
-            }else{
-                this.players[data.username] = new RemotePlayerEntity(data.x, data.y, data.username);
-            }
-            console.log(this.players[data.username]);
-        }
+        if(data.username == this.username) return false;
+
+        if(this.players[data.username])
+            this.players[data.username].setPos(data.x, data.y);
+        else
+            this.players[data.username] = new RemotePlayerEntity(data.x, data.y, data.username);
     }
 
-    handleJoin(){
+    handleJoin(data){
+        if(data.username == this.username) return false;
+
+        this.players[data.username] = new RemotePlayerEntity(this.roomConf.spawn.x, this.roomConf.spawn.y, data.username);
+
         this.player.x += 1; //dirty trick to get the player to send his pos without having to do weird shit
     }
 
-    handleLeave(){
-        //nothing here yet, stub function
+    handleLeave(data){
+        if(data.username == this.username) return false; //probably unnecessary, but why not, lol
+
+        delete this.players[data.username];
     }
 
     handleMessage(data){
-        if(data.username != this.username){
-            if(this.players[data.username]) this.players[data.username].chatMsg = data.msg;
-        }else{
+        console.log('msg', data, data.username != this.username);
+        if(data.username == this.username){
             this.player.chatMsg = data.msg;
+        }else{
+            if(this.players[data.username])
+                this.players[data.username].chatMsg = data.msg;
         }
     }
 
