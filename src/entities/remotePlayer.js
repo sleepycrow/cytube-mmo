@@ -28,12 +28,12 @@ export default class RemotePlayerEntity extends Sprite {
     }
 
     draw(core){
-        core.ctx.fillStyle = "#666666";
+        core.ctx.fillStyle = "#333333";
         core.ctx.fillRect((this.x - core.camera.x), (this.y - core.camera.y), this.width, this.height);
 
-        core.ctx.font = "24px sans-serif";
-        core.ctx.fillText(this.username, (this.x - core.camera.x) + this.width, (this.y - core.camera.y) + this.height);
-        
+        core.ctx.font = "16px sans-serif";
+        core.ctx.fillText(this.username, (this.x - core.camera.x), (this.y - core.camera.y) + this.height + 16);
+
         core.ctx.font = "16px sans-serif";
         core.ctx.fillText(this.chatMsg, (this.x - core.camera.x), (this.y - core.camera.y) - 4);
     }
