@@ -50,7 +50,8 @@ export default class Game {
             lastTimestamp = timestamp;
             this.fps = 1000 / dt;
 
-            //update the scene c:
+            // update subsystems
+            this.input.update();
             this.stateManager.runUpdate(dt);
 
             //clear canvas
