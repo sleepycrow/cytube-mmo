@@ -36,6 +36,10 @@ export default class RoomState extends State {
 
                 console.log("FINISHED LOADING!!!!!");
                 resolve();
+            })
+            .catch(() => {
+                window.alert('Nie udało się załadować zasobów tej mapy.');
+                core.stateManager.switch('menu', [this.username]);
             });
         });
     }
