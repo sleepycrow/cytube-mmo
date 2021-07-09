@@ -29,7 +29,7 @@ export default class RoomState extends State {
                 this.tilemap = new Tilemap(mapW, mapH, this.roomConf.tileSize, core.assets.loaded[this.roomConf.tileset]);
                 this.tilemap.loadMap(this.roomConf.tilemap);
 
-                this.player = new LocalPlayerEntity(128, 128);
+                this.player = new LocalPlayerEntity(this.roomConf.spawn.x, this.roomConf.spawn.y);
 
                 core.net.setChannel(this.channel);
                 core.net.send({type: "join"});
