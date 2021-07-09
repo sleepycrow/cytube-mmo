@@ -58,7 +58,7 @@ const map = {
 };
 
 export default class GameState extends State {
-    
+
     constructor(username){
         super();
 
@@ -67,6 +67,7 @@ export default class GameState extends State {
     }
 
     handlePosUpdate(data){
+        console.log("kurwa");
         if(data.username != this.username){
             if(this.players[data.username]){
                 this.players[data.username].setPos(data.x, data.y);
@@ -81,6 +82,10 @@ export default class GameState extends State {
         this.player.x += 1; //dirty trick to get the player to send his pos without having to do weird shit
     }
 
+    handleLeave(){
+        //nothing here yet, stub function
+    }
+
     handleMessage(data){
         if(data.username != this.username){
             if(this.players[data.username]) this.players[data.username].chatMsg = data.msg;
@@ -89,10 +94,32 @@ export default class GameState extends State {
         }
     }
 
+    onPacket(type, data){
+        switch(type){
+            case 'chatMsg':
+                this.handleMessage(data);
+                break;
+
+            case 'join':
+                this.handleJoin(data);
+                break;
+
+            case 'leave':
+                this.handleLeave(data);
+                break;
+
+            case 'pos':
+                this.handlePosUpdate(data);
+                break;
+        }
+    }
+
     init(core){
         this.drawLoadingScreen(core);
 
         return new Promise((resolve, reject) => {
+            console.log("entering gamestate...");
+
             core.camera.resetPos();
 
             this.tilemap = new Tilemap(48, 48, 16, null);
@@ -100,10 +127,17 @@ export default class GameState extends State {
 
             this.player = new LocalPlayerEntity(128, 128);
 
-            core.net.on("chatMsg", this.handleMessage.bind(this));
-            core.net.on("pos", this.handlePosUpdate.bind(this));
-            core.net.on("join", this.handleJoin.bind(this));
             core.net.send({type: "join"});
+
+            resolve();
+        });
+    }
+
+    exit(core){
+        return new Promise((resolve, reject) => {
+            console.log("exiting gamestate...");
+
+            core.net.send({type: "leave"});
 
             resolve();
         });
@@ -122,7 +156,7 @@ export default class GameState extends State {
         //draw background
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, width, height);
-        
+
         ctx.fillStyle = "#000000";
         for(var x = tileSize; x < (width + tileSize); x += tileSize){
             ctx.fillRect(x - (camX % tileSize), 0, 1, height);

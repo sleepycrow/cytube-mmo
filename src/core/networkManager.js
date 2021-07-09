@@ -1,11 +1,7 @@
 export default class NetworkManager {
 
     constructor(){
-        this.handlers = {
-            pos: [],
-            join: [],
-            chatMsg: []
-        };
+        this.onPacket = console.log;
     }
 
     setSocket(socket){
@@ -17,28 +13,14 @@ export default class NetworkManager {
                 var msgData = JSON.parse(data.msg);
                 msgData.username = data.username;
 
-                if(msgData.type && this.handlers[msgData.type])
-                    this.dispatchEvent(msgData.type, msgData);
+                if(msgData.type)
+                    this.onPacket(msgData.type, msgData);
             }catch(e){
                 data.msg = data.msg.replace(/title="([^"]+)"/gi, ">$1<");
                 data.msg = data.msg.replace(/<([^>]+)?>/gi, "");
-                this.dispatchEvent("chatMsg", data);
+                this.onPacket("chatMsg", data);
             }
         });
-    }
-
-    on(event, handler){
-        if(!this.handlers[event]) throw "Non-existant event (" + event + ") requested!";
-
-        this.handlers[event].push(handler);
-    }
-
-    dispatchEvent(event, data){
-        if(!this.handlers[event]) throw "Non-existant event (" + event + ") requested!";
-
-        for(var i = 0; i < this.handlers[event].length; i++){
-            this.handlers[event][i](data);
-        }
     }
 
     send(data){

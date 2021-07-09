@@ -36,6 +36,12 @@ export default class Game {
         this.assets = new AssetManager();
         this.net = new NetworkManager();
 
+        //set up subsystems
+        this.net.onPacket = (type, data) => {
+            if(this.stateManager.getState().onPacket)
+                this.stateManager.getState().onPacket(type, data);
+        };
+
         //start the loop
         var lastTimestamp = Date.now();
         var loop = (timestamp) => {
