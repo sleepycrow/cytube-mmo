@@ -8,8 +8,7 @@ const port = 10001;
 
 // Options for Rollup.js
 const inputOpts = {
-    input: "./src/main.js",
-    plugins: [terser()]
+    input: "./src/main.js"
 };
 const outputOpts = {
     name: "game",
