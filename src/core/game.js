@@ -7,22 +7,41 @@ import NetworkManager from "./networkManager";
 export default class Game {
 
     constructor(canvasId, scale){
-        this.canvas = document.getElementById(canvasId);
-        if(this.canvas == null) throw("canvas could not be found!");
+        this.outputCanvas = document.getElementById(canvasId);
+        if(this.outputCanvas == null) throw("canvas could not be found!");
+        this.outputCanvas.setAttribute('tabindex', 0); // make canvas focusable
 
         this.fps = 0;
-        this.width = this.canvas.width / scale;
-        this.height = this.canvas.height / scale;
         this.scale = scale;
+        this.width = this.outputCanvas.width / scale;
+        this.height = this.outputCanvas.height / scale;
+
+        // create a new canvas. on this one, everything will be drawn at scale 1
+        // afterwards, everything from this canvas will be redrawn on the new
+        // canvas at the proper scale. this is to prevent the fuckery that comes
+        // with drawing tilesets with drawImage with a scale.
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
         this.ctx = this.canvas.getContext("2d");
-        this.ctx.scale(scale, scale);
+        this.ctx.imageSmoothingEnabled = false;
+
+        this.outCtx = this.outputCanvas.getContext("2d");
+        this.outCtx.scale(scale, scale);
+        this.outCtx.imageSmoothingEnabled = false;
 
         //start subsystems
         this.stateManager = new StateManager(this);
-        this.input = new InputManager();
+        this.input = new InputManager(this);
         this.camera = new Camera(this, 0, 0);
         this.assets = new AssetManager();
         this.net = new NetworkManager();
+
+        //set up subsystems
+        this.net.onPacket = (type, data) => {
+            if(this.stateManager.getState().onPacket)
+                this.stateManager.getState().onPacket(type, data);
+        };
 
         //start the loop
         var lastTimestamp = Date.now();
@@ -32,7 +51,8 @@ export default class Game {
             lastTimestamp = timestamp;
             this.fps = 1000 / dt;
 
-            //update the scene c:
+            // update subsystems
+            this.input.update();
             this.stateManager.runUpdate(dt);
 
             //clear canvas
@@ -43,6 +63,9 @@ export default class Game {
 
             //draw the scene
             this.stateManager.runDraw();
+
+            //copy scene to output canvas
+            this.outCtx.drawImage(this.canvas, 0, 0);
 
             //request another frame
             this.frameRequestId = window.requestAnimationFrame(loop);

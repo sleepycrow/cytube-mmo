@@ -18,7 +18,7 @@ export default class LocalPlayerEntity extends Sprite {
 
     update(dt, core, tilemap){
         this._updateMovement(dt, core, tilemap);
-        if(core.net.socket) this.sendPosition(core.net.socket);
+        this.sendPosition(core);
     }
 
     _updateMovement(dt, core, tilemap){
@@ -36,7 +36,7 @@ export default class LocalPlayerEntity extends Sprite {
         // check for collisions on the x axis
         if(tilemap){
             let blocked = tilemap.calculateCollision(this.x, this.y, this.width, this.height, this.vel.x, 0);
-            
+
             if(blocked.left && this.vel.x < 0) this.vel.x = 0;
             else if(blocked.right && this.vel.x > 0) this.vel.x = 0;
         }
@@ -54,7 +54,7 @@ export default class LocalPlayerEntity extends Sprite {
         // check for collisions on the y axis
         if(tilemap){
             let blocked = tilemap.calculateCollision(this.x, this.y, this.width, this.height, 0, this.vel.y);
-            
+
             if(blocked.top && this.vel.y < 0) this.vel.y = 0;
             else if(blocked.bottom && this.vel.y > 0) this.vel.y = 0;
         }
@@ -63,14 +63,11 @@ export default class LocalPlayerEntity extends Sprite {
         this.y += this.vel.y;
     }
 
-    sendPosition(socket){
+    sendPosition(core){
         if(this.x == this.lastX && this.y == this.lastY) return false;
         if(Date.now() - this.lastUpdate < 250) return false;
 
-        socket.emit("chatMsg", {
-            msg: '{"type": "pos", "x": ' + this.x + ', "y": ' + this.y + '}',
-            meta: {}
-        });
+        core.net.send({ type: 'pos', x: this.x, y: this.y });
 
         this.lastX = this.x;
         this.lastY = this.y;

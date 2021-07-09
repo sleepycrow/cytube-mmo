@@ -1,4 +1,4 @@
-import minify from "rollup-plugin-babel-minify";
+const { terser } = require('rollup-plugin-terser');
 
 export default {
     input: "./src/main.js",
@@ -7,10 +7,8 @@ export default {
         file: "./dist/js/game.js",
         format: "iife"
     },
-    
+
     plugins: [
-        minify({
-            comments: false
-        })
+        terser()
     ]
 }
