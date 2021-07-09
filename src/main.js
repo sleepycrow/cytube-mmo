@@ -12,6 +12,6 @@ import GameState from "./states/gameState";
 export default function startGame(canvasId, socket, username){
     var game = new Game(canvasId, 1);
     game.net.setSocket(socket);
-    game.stateManager.switchState(new GameState(username));
+    game.stateManager.switch(new GameState(username));
     return game;
 }
